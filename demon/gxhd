@@ -1,0 +1,53 @@
+#!/bin/sh
+
+
+
+VER="$( cat /var/www/html/config/gxh_version )"
+
+
+SERVICE_NAME=GXHSystem
+PATH_TO_APP="/var/www/html/$VER/app_cpp/$VER/gxh ++++++ /var/www/html/$VER/app_cpp/$VER/"
+PID_PATH_NAME=/tmp/gxh-pid
+case $1 in
+    start)
+        echo "Starting $SERVICE_NAME ..."
+        if [ ! -f $PID_PATH_NAME ]; then
+
+            #/mnt/nand-user/eres /dev/ttymxc2
+            #/mnt/nand-user/eres /dev/ttymxc3                      
+            nohup $PATH_TO_APP >> /var/www/html/$VER/app_home_log &
+                        echo $! > $PID_PATH_NAME
+            echo "$SERVICE_NAME started ..."
+                       
+        else
+            echo "$SERVICE_NAME is already running ..."
+        fi
+    ;;
+    stop)
+        if [ -f $PID_PATH_NAME ]; then
+            PID=$(cat $PID_PATH_NAME);
+            echo "$SERVICE_NAME stoping ..."                   
+            #nohup java -jar $PATH_TO_JAR stop /tmp 2>> /dev/null >> /dev/null
+            kill -9 $PID;
+            echo "$SERVICE_NAME stopped ..."
+            rm $PID_PATH_NAME
+        else
+            echo "$SERVICE_NAME is not running ..."
+        fi
+    ;;
+    restart)
+        if [ -f $PID_PATH_NAME ]; then
+            PID=$(cat $PID_PATH_NAME);
+            echo "$SERVICE_NAME stopping ...";                   
+            kill -9 $PID;
+            echo "$SERVICE_NAME stopped ...";
+            rm $PID_PATH_NAME
+            echo "$SERVICE_NAME starting ..."            
+             nohup $PATH_TO_APP >> /var/www/html/$VER/app_home_log &
+                        echo $! > $PID_PATH_NAME
+            echo "$SERVICE_NAME started ..."
+        else
+            echo "$SERVICE_NAME is not running ..."
+        fi
+    ;;
+esac 
